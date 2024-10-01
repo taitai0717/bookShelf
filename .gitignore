@@ -1,0 +1,51 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Kotlin ###
+.kotlin
+/docker/pgadmin/sessions/3aaccdad-5945-42b6-b9f9-e96352b10712
+/docker/pgadmin/sessions/9a448044-890a-4f70-b166-178bd21643e8
+/docker/pgadmin/sessions/34f84bee-a541-4209-be4a-e8300244115a
+/docker/pgadmin/sessions/107fdbdd-5c89-4a18-9db6-29be7f679345
+/docker/pgadmin/sessions/5163f357-6813-44df-a5d8-2bac6a2f67c5
+/docker/pgadmin/sessions/a94c6acc-cbbc-4c7a-85e2-66d1b843a972
+/docker/pgadmin/sessions/a8504a06-4671-4a0d-8b90-c3a9b9ed963d
+/docker/pgadmin/sessions/b073be4a-5590-4569-bf23-19e99f3bee88
+/docker/pgadmin/sessions/d26d84e8-a959-4852-9bdd-ec1bba17fe3c
+/docker/pgadmin/sessions/d59209b4-0d75-4b60-8bad-12109958a994
+/docker/pgadmin/sessions/fc38f4e5-a727-4406-a5a4-eae568567e69
