@@ -44,7 +44,7 @@
 # APIリファレンス
 以下は、APIの使用例です。
 詳細については、各APIエンドポイントのリンクをクリックしてください。
-<details><summary>書籍</summary>
+## 書籍関連API
 <details><summary>全書籍取得</summary>
 
 - **リクエスト**:
@@ -109,7 +109,7 @@
 - **パラメータ**:
   ```bash
   {
-    "id": 1,
+    "bookId": 1,
     "title": "書籍タイトル",
     "price": "1000",
     "authorId": 1,
@@ -135,9 +135,8 @@
   Invoke-WebRequest -Uri "http://localhost:8080/api/books/update" -Method PUT -Headers $headers -Body $body
 
 </details>
-</details>
 
-<details><summary>書籍</summary>
+## 著者関連API
 <details><summary>全著者取得</summary>
 
 - **リクエスト**:
@@ -210,4 +209,22 @@
   
   Invoke-RestMethod -Uri "http://localhost:8080/api/author/update" -Method Put -Headers $headers -Body $body
 </details>
-</details>
+
+# 属性
+リクエストで送信するJSONの属性と詳細です。
+## 書籍
+| 論理名  | 物理名     | 型   | 詳細                  |
+|------|---------|-----|---------------------|
+| 書籍ID | bookId | 数値  | 更新時必須。bookId≧1。     |
+| タイトル | title   | 文字列 | 100文字以内。            |
+| 価格   | price | 数値  | 0以上。price≧0。         |
+| 著者ID | authorId     | 数値  | 必須。authorId≧1。       |
+| 出版状況 | publicationStatus | 真偽値 | false → true への更新不可。 |
+
+
+## 著者
+| 論理名  | 物理名     | 型   | 詳細                        |
+|------|---------|-----|---------------------------|
+| 著者ID | authorId | 数値  | 更新時必須。authorId≧1。         |
+| 著者名 | name   | 文字列 | 50文字以内。                   |
+| 生年月日   | birthday | 文字列  | yyyy-mm-dd形式。現在日付以降の入力不可。 |
