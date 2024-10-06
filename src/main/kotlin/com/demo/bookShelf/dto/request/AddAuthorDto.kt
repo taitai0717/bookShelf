@@ -1,7 +1,7 @@
 package com.demo.bookShelf.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
@@ -9,13 +9,12 @@ import jakarta.validation.constraints.Size
 data class AddAuthorDto(
 
     // 著者名
-    @field:Size(max = 100, message = "著者名は50文字以内で入力してください")
-    @field:NotBlank(message = "著者名の入力は必須です")
+    @field:NotEmpty(message = "著者名の入力は必須です")
+    @field:Size(max = 50, message = "著者名は50文字以内で入力してください")
     @field:JsonProperty("name", required = true)
     val name: String,
 
     // 生年月日
-    @field:NotBlank(message = "生年月日の入力は必須です")
     @field:Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "生年月日は'yyyy-mm-dd'形式で入力してください")
     @field:JsonProperty("birthday", required = true)
     val birthday: String

@@ -6,6 +6,7 @@ import com.demo.bookShelf.model.Book
 import org.example.db.tables.Books.BOOKS
 import org.example.db.tables.records.BooksRecord
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 class BookRepository(private val dsl: DSLContext) {
@@ -44,6 +45,8 @@ class BookRepository(private val dsl: DSLContext) {
                 .set(BOOKS.PRICE, bookRecord.price)
                 .set(BOOKS.AUTHOR_ID, bookRecord.authorId)
                 .set(BOOKS.PUBLICATION_STATUS, bookRecord.publicationStatus)
+                .set(BOOKS.CREATED_AT, LocalDateTime.now())
+                .set(BOOKS.UPDATED_AT, LocalDateTime.now())
                 .execute()
         } else {
             // 既存の場合はUPDATE
@@ -52,6 +55,7 @@ class BookRepository(private val dsl: DSLContext) {
                 .set(BOOKS.PRICE, bookRecord.price)
                 .set(BOOKS.AUTHOR_ID, bookRecord.authorId)
                 .set(BOOKS.PUBLICATION_STATUS, bookRecord.publicationStatus)
+                .set(BOOKS.UPDATED_AT, LocalDateTime.now())
                 .where(BOOKS.ID.eq(bookRecord.id))
                 .execute()
         }

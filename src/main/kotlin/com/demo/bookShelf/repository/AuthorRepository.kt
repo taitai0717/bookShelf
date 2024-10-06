@@ -6,6 +6,7 @@ import org.example.db.tables.records.AuthorRecord
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 class AuthorRepository(private val dsl: DSLContext) {
@@ -33,12 +34,15 @@ class AuthorRepository(private val dsl: DSLContext) {
             dsl.insertInto(AUTHOR)
                 .set(AUTHOR.NAME, authorRecord.name)
                 .set(AUTHOR.BIRTHDAY, authorRecord.birthday)
+                .set(AUTHOR.CREATED_AT, LocalDateTime.now())
+                .set(AUTHOR.UPDATED_AT, LocalDateTime.now())
                 .execute()
         } else {
             // 既存の場合はUPDATE
             dsl.update(AUTHOR)
                 .set(AUTHOR.NAME, authorRecord.name)
                 .set(AUTHOR.BIRTHDAY, authorRecord.birthday)
+                .set(AUTHOR.UPDATED_AT, LocalDateTime.now())
                 .where(AUTHOR.ID.eq(authorRecord.id))
                 .execute()
         }

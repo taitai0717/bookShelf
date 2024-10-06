@@ -41,26 +41,36 @@ class AuthorController(private val authorService: AuthorService) {
     }
 
     // 著者情報を更新するエンドポイント
-    @PostMapping("/update")
+    @PutMapping("/update")
     fun updateAuthor(
         // リクエストボディからDTOにバインド
         @RequestBody @Validated updateAuthorDto: UpdateAuthorDto,
         // バリデーションエラーの結果を受け取る
         bindingResult: BindingResult
     ): ResponseEntity<Any> {
+        // バリデーションエラーがあれば、エラーメッセージを返す
+        handleValidationErrors(bindingResult)?.let { return it }
         // 更新する著者IDがデータベースに存在するか確認
         if (authorService.findAuthorById(updateAuthorDto.id) == null) {
             // 存在しない場合、エラーを追加
             bindingResult.addError(FieldError("addBookDto", "authorId", "存在しない著者IDです"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
         }
-        // バリデーションエラーがあれば、エラーメッセージを返す
+        // 著者情報を更新するサービスメソッドを呼び出す
+        authorService.updateAuthor(updateAuthorDto)
+        // 成功時に更新した著者情報を含むレスポンスを返す
+        return ResponseEntity.ok("put:$updateAuthorDto")
+    }
+
+    // BindingResultのエラーを処理する共通メソッド
+    fun handleValidationErrors(bindingResult: BindingResult): ResponseEntity<Any>? {
+        // バインドエラーがあれば、エラーメッセージを返す
         if (bindingResult.hasErrors()) {
             val errors = bindingResult.allErrors.map { it.defaultMessage }.joinToString(", ")
             return ResponseEntity.badRequest().body(errors)
         }
-        // 著者情報を更新するサービスメソッドを呼び出す
-        authorService.updateBook(updateAuthorDto)
-        // 成功時に更新した著者情報を含むレスポンスを返す
-        return ResponseEntity.ok("post:$updateAuthorDto")
+        // エラーがない場合はnullを返す
+        return null
     }
 }

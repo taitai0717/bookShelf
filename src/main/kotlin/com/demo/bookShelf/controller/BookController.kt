@@ -44,10 +44,7 @@ class BookController(private val bookService: BookService, private val authorSer
             bindingResult.addError(FieldError("addBookDto", "authorId", "存在しない著者IDです"))
         }
         // バインドエラーがあれば、エラーメッセージを返す
-        if (bindingResult.hasErrors()) {
-            val errors = bindingResult.allErrors.map { it.defaultMessage }.joinToString(", ")
-            return ResponseEntity.badRequest().body(errors)
-        }
+        handleValidationErrors(bindingResult)?.let { return it }
         // サービスを呼び出して新しい書籍を追加
         bookService.addBook(addBookDto)
 
@@ -56,38 +53,55 @@ class BookController(private val bookService: BookService, private val authorSer
     }
 
     // 書籍情報を更新するエンドポイント
-    @PostMapping("/update")
+    @PutMapping("/update")
     fun updateBook(
         // リクエストボディからUpdateBookDtoにバインド
         @RequestBody @Validated updateBookDto: UpdateBookDto,
         // バリデーションエラーの結果を受け取る
         bindingResult: BindingResult
     ): ResponseEntity<Any> {
+        // バインドエラーがあれば、エラーメッセージを返す
+        handleValidationErrors(bindingResult)?.let { return it }
+
         // 更新する書籍IDがデータベースに存在するか確認
-        if (bookService.findBookById(updateBookDto.id) == null) {
+        val searchedBook = bookService.findBookById(updateBookDto.id)
+        if (searchedBook == null) {
             // 存在しない場合、エラーを追加
             bindingResult.addError(FieldError("updateBookDto", "id", "存在しない書籍IDです"))
-        }
-        // 書籍が既に出版済みで、未出版に変更する場合のチェック
-        if (bookService.findBookById(updateBookDto.id)!!.publicationStatus == true && updateBookDto.publicationStatus == false) {
-            // この変更が許可されない場合、エラーを追加
-            bindingResult.addError(FieldError("updateBookDto", "id", "出版済を未出版には変更できません"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
         }
         // 指定された著者IDが存在するか確認
         if (authorService.findAuthorById(updateBookDto.authorId) == null) {
             // 存在しない場合、エラーを追加
             bindingResult.addError(FieldError("updateBookDto", "authorId", "存在しない著者IDです"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
         }
+        // 書籍が既に出版済みで、未出版に変更する場合のチェック
+        if (searchedBook!!.publicationStatus == true && updateBookDto.publicationStatus == false) {
+            // この変更が許可されない場合、エラーを追加
+            bindingResult.addError(FieldError("updateBookDto", "id", "出版済を未出版には変更できません"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
+        }
+
+        // サービスを呼び出して書籍情報を更新
+        bookService.updateBook(updateBookDto)
+
+        // 成功時に更新した書籍情報を含むレスポンスを返す
+        return ResponseEntity.ok("put:$updateBookDto")
+    }
+
+    // BindingResultのエラーを処理する共通メソッド
+    fun handleValidationErrors(bindingResult: BindingResult): ResponseEntity<Any>? {
         // バインドエラーがあれば、エラーメッセージを返す
         if (bindingResult.hasErrors()) {
             val errors = bindingResult.allErrors.map { it.defaultMessage }.joinToString(", ")
             return ResponseEntity.badRequest().body(errors)
         }
-        // サービスを呼び出して書籍情報を更新
-        bookService.updateBook(updateBookDto)
-
-        // 成功時に更新した書籍情報を含むレスポンスを返す
-        return ResponseEntity.ok("post:$updateBookDto")
+        // エラーがない場合はnullを返す
+        return null
     }
 
 }

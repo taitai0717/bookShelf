@@ -44,10 +44,12 @@ class AuthorService(private val authorRepository: AuthorRepository) {
     // 新しい著者を追加するメソッド
     @Transactional
     fun addAuthor(addAuthorDto: AddAuthorDto) {
+
+        // 生年月日を検証
+        validateBirthday(addAuthorDto.birthday)
+
         // 新しい著者を表すPOJOを作成
-        val addAuthor = org.example.db.tables.pojos.Author()
-        addAuthor.setName(addAuthorDto.name)
-        addAuthor.setBirthday(LocalDate.parse(addAuthorDto.birthday))
+        val addAuthor = org.example.db.tables.pojos.Author(null,addAuthorDto.name,LocalDate.parse(addAuthorDto.birthday),null,null)
 
         // AuthorRecordを作成
         val addRecord = AuthorRecord(
@@ -61,12 +63,13 @@ class AuthorService(private val authorRepository: AuthorRepository) {
 
     // 著者情報を更新するメソッド
     @Transactional
-    fun updateBook(updateAuthorDto: UpdateAuthorDto) {
+    fun updateAuthor(updateAuthorDto: UpdateAuthorDto) {
+
+        // 生年月日を検証
+        validateBirthday(updateAuthorDto.birthday)
+
         // 更新対象の著者を表すPOJOを作成
-        val updateAuthor = org.example.db.tables.pojos.Author()
-        updateAuthor.setId(updateAuthorDto.id)
-        updateAuthor.setName(updateAuthorDto.name)
-        updateAuthor.setBirthday(LocalDate.parse(updateAuthorDto.birthday))
+        val updateAuthor = org.example.db.tables.pojos.Author(updateAuthorDto.id,updateAuthorDto.name,LocalDate.parse(updateAuthorDto.birthday),null,null)
 
         // AuthorRecordを作成し、リポジトリを通じて著者情報を保存
         authorRepository.saveAuthor(
@@ -74,6 +77,14 @@ class AuthorService(private val authorRepository: AuthorRepository) {
                 updateAuthor
             )
         )
+    }
+
+    // 生年月日を検証する共通関数
+    private fun validateBirthday(birthdayStr: String) {
+        val birthday = LocalDate.parse(birthdayStr)
+        if (birthday.isAfter(LocalDate.now())) {
+            throw IllegalArgumentException("生年月日は今日以前の日付でなければなりません")
+        }
     }
 
 }
