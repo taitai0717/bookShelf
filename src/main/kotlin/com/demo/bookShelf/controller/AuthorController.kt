@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/author")
@@ -29,10 +30,16 @@ class AuthorController(private val authorService: AuthorService) {
         // BindingResultでバリデーションエラーの結果を受け取る
         bindingResult: BindingResult
     ): ResponseEntity<Any> {
-        // バインドエラーがあれば、エラーメッセージを返す
-        if (bindingResult.hasErrors()) {
-            val errors = bindingResult.allErrors.map { it.defaultMessage }.joinToString(", ")
-            return ResponseEntity.badRequest().body(errors)
+
+        // バリデーションエラーがあれば、エラーメッセージを返す
+        handleValidationErrors(bindingResult)?.let { return it }
+
+        // 更新後の生年月日が未来日でないか確認
+        if (!LocalDate.now().isAfter(LocalDate.parse(addAuthorDto.birthday))) {
+            // 存在しない場合、エラーを追加
+            bindingResult.addError(FieldError("addAuthorDto", "birthday", "生年月日は現在の日付よりも過去でなければなりません"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
         }
         // 著者を追加するサービスメソッドを呼び出す
         authorService.addAuthor(addAuthorDto)
@@ -48,8 +55,16 @@ class AuthorController(private val authorService: AuthorService) {
         // バリデーションエラーの結果を受け取る
         bindingResult: BindingResult
     ): ResponseEntity<Any> {
+
         // バリデーションエラーがあれば、エラーメッセージを返す
         handleValidationErrors(bindingResult)?.let { return it }
+        // 更新後の生年月日が未来日でないか確認
+        if (!LocalDate.now().isAfter(LocalDate.parse(updateAuthorDto.birthday))) {
+            // 存在しない場合、エラーを追加
+            bindingResult.addError(FieldError("updateAuthorDto", "birthday", "生年月日は現在の日付よりも過去でなければなりません"))
+            // ビジネスロジックのエラーがあれば、エラーメッセージを返す
+            handleValidationErrors(bindingResult)?.let { return it }
+        }
         // 更新する著者IDがデータベースに存在するか確認
         if (authorService.findAuthorById(updateAuthorDto.id) == null) {
             // 存在しない場合、エラーを追加

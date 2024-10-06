@@ -122,6 +122,42 @@ class AuthorControllerTest {
     }
 
     @Test
+    fun `author add test when date of birth future boundary value on`() {
+        // 生年月日の未来日のテスト
+        // 前日を指定
+        val birthday = LocalDate.now().minusDays(1).toString()
+        val authorJson = "{\"name\":\"テスト著者１\",\"birthday\":\"$birthday\"}"
+        val expectedResponse = "post:AddAuthorDto(name=テスト著者１, birthday=2002-09-12)"
+
+        mockMvc.perform(
+            post("/api/author/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(authorJson)
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().string(expectedResponse))
+
+    }
+
+
+    @Test
+    fun `author add test when date of birth future boundary value out`() {
+        // 生年月日の未来日のテスト
+        // 前日を指定
+        val birthday = LocalDate.now().toString()
+        val authorJson = "{\"name\":\"テスト著者１\",\"birthday\":\"$birthday\"}"
+        val expectedResponse = "生年月日は現在の日付よりも過去でなければなりません"
+
+        mockMvc.perform(
+            post("/api/author/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(authorJson)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(expectedResponse))
+    }
+
+    @Test
     fun `update author information test`() {
         // 著者情報の更新テスト
         val authorJson = "{\"authorId\":4,\"name\":\"テスト著者４変更後\",\"birthday\":\"2002-09-12\"}"
@@ -220,6 +256,46 @@ class AuthorControllerTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(content().string(expectedResponse))
+    }
+
+    @Test
+    fun `author update test when date of birth future boundary value on`() {
+        // 生年月日の未来日のテスト
+        // 当日を指定
+        val birthday = LocalDate.now().toString()
+        val authorJson = "{\"authorId\":1,\"name\":\"テスト著者１\",\"birthday\":\"$birthday\"}"
+        val expectedResponse = "生年月日は現在の日付よりも過去でなければなりません"
+
+        mockMvc.perform(
+            put("/api/author/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(authorJson)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(expectedResponse))
+    }
+
+    @Test
+    fun `author update test when date of birth future boundary value out`() {
+        // 生年月日の未来日のテスト
+        // 前日を指定
+        val birthday = LocalDate.now().minusDays(1).toString()
+        val authorJson = "{\"authorId\":1,\"name\":\"テスト著者１\",\"birthday\":\"$birthday\"}"
+        val expectedResponse =
+            "put:UpdateAuthorDto(id=1, name=テスト著者１, birthday=$birthday)"
+
+        `when`(authorService.findAuthorById(1)).thenReturn(
+            AuthorDto(4, "テスト著者４変更前", LocalDate.of(2001, 10, 15))
+        )
+
+        mockMvc.perform(
+            put("/api/author/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(authorJson)
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().string(expectedResponse))
+
     }
 
     @Test
